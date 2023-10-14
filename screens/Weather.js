@@ -1,9 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, Image } from 'react-native';
 
-const API_URL = 'https://api.openweathermap.org/data/2.5/weather?';
-const API_KEY = '3332343d6145f9bbdffeab726d0cbbc5';
-const ICON_URL = 'http://openweathermap.org/img/wn/';
+const api = {
+    url: process.env.EXPO_PUBLIC_API_URL,
+    key: process.env.EXPO_PUBLIC_API_KEY,
+    icons: process.env.EXPO_PUBLIC_ICONS_URL
+}
 
 export default function Weather({latitude, longitude}) {
 
@@ -12,23 +14,23 @@ export default function Weather({latitude, longitude}) {
     const [icon, setIcon] = useState('');
 
     useEffect(() => {
-        const url = API_URL +
+        const url = api.url +
         'lat=' + latitude +
         '&lon=' + longitude +
         '&units=metric' +
-        '&appid=' + API_KEY;
+        '&lang=fi' +
+        '&appid=' + api.key
         fetch(url)
         .then(res => res.json())
-        .then(
-            (result) => {
-                setTemp(result.main.temp);
-                setDescription(result.weather[0].description);
-                setIcon(ICON_URL + result.weather[0].icon + '@2x.png');
-            },
-            (error) => {
-                alert(error);
-            }
-        )
+        .then((json) => {
+            setTemp(json.main.temp)
+            setDescription(json.weather[0].description)
+            setIcon(api.icons + json.weather[0].icon + '@2x.png')
+        })
+        .catch((error) => {
+            setDescription("Error retrieving weather information.")
+            console.log(error)
+        })
     }, [])
 
     return (
